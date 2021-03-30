@@ -1,9 +1,8 @@
 package org.javaparser.examples.chapter2;
 
-import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 
 import java.io.FileInputStream;
@@ -17,7 +16,7 @@ public class ModifyingVisitorComplete {
 
     public static void main(String[] args) throws Exception {
 
-        CompilationUnit cu = JavaParser.parse(new FileInputStream(FILE_PATH));
+        CompilationUnit cu = StaticJavaParser.parse(new FileInputStream(FILE_PATH));
 
         ModifierVisitor<?> numericLiteralVisitor = new IntegerLiteralModifier();
         numericLiteralVisitor.visit(cu, null);
@@ -31,11 +30,12 @@ public class ModifyingVisitorComplete {
         public FieldDeclaration visit(FieldDeclaration fd, Void arg) {
             super.visit(fd, arg);
             fd.getVariables().forEach(v ->
-                    v.getInitializer().ifPresent(i -> {
-                        if (i instanceof IntegerLiteralExpr) {
-                            v.setInitializer(formatWithUnderscores(((IntegerLiteralExpr) i).getValue()));
-                        }
-                    }));
+                    v.getInitializer().ifPresent(i ->
+                            i.ifIntegerLiteralExpr(il ->
+                                    v.setInitializer(formatWithUnderscores(il.getValue()))
+                            )
+                    )
+            );
             return fd;
         }
     }

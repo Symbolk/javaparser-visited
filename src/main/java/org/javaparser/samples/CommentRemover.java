@@ -1,10 +1,9 @@
 package org.javaparser.samples;
 
-import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
-import com.github.javaparser.ast.comments.LineComment;
 
 import java.io.File;
 import java.util.List;
@@ -15,12 +14,12 @@ public class CommentRemover {
     private static final String FILE_PATH = "src/main/java/org/javaparser/samples/ReversePolishNotation.java";
 
     public static void main(String[] args) throws Exception {
-        CompilationUnit cu = JavaParser.parse(new File(FILE_PATH));
+        CompilationUnit cu = StaticJavaParser.parse(new File(FILE_PATH));
 
         List<Comment> comments = cu.getAllContainedComments();
         List<Comment> unwantedComments = comments
                 .stream()
-                .filter(p -> !p.getCommentedNode().isPresent() || p instanceof LineComment)
+                .filter(p -> !p.getCommentedNode().isPresent() || p.isLineComment())
                 .collect(Collectors.toList());
         unwantedComments.forEach(Node::remove);
 

@@ -1,6 +1,6 @@
 package org.javaparser.examples.chapter5;
 
-import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedTypeDeclaration;
@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MemoryTypeSolverComplete {
 
@@ -21,7 +22,7 @@ public class MemoryTypeSolverComplete {
 
     @Test
     public void solveTypeInSamePackage() throws Exception {
-        CompilationUnit cu = JavaParser.parse(new File(FILE_PATH));
+        CompilationUnit cu = StaticJavaParser.parse(new File(FILE_PATH));
 
         ResolvedReferenceTypeDeclaration otherClass = EasyMock.createMock(ResolvedReferenceTypeDeclaration.class);
         EasyMock.expect(otherClass.getQualifiedName()).andReturn("org.javaparser.examples.chapter5.Bar");
@@ -36,8 +37,8 @@ public class MemoryTypeSolverComplete {
 
         EasyMock.replay(otherClass);
 
-        SymbolReference<ResolvedTypeDeclaration> ref = context.solveType("Bar", memoryTypeSolver);
-        assertEquals(true, ref.isSolved());
+        SymbolReference<ResolvedTypeDeclaration> ref = context.solveType("Bar");
+        assertTrue(ref.isSolved());
         assertEquals("org.javaparser.examples.chapter5.Bar", ref.getCorrespondingDeclaration().getQualifiedName());
     }
 }
